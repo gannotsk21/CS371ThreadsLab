@@ -26,7 +26,10 @@ public class StarAnimation extends Animation {
     public StarAnimation(int initWidth, int initHeight) {
         super(initWidth, initHeight);
         part5 p5 = new part5(this);
-        p5.start();
+        synchronized (p5) {
+            p5.start();
+        }
+
     }
 
     /** whenever the canvas size changes, generate new stars */
@@ -49,25 +52,30 @@ public class StarAnimation extends Animation {
         int x = rand.nextInt(width);
         int y = rand.nextInt(height);
 
-
-        field.add(new Star(x, y));
+        synchronized (field) {
+            field.add(new Star(x, y));
+        }
     }//addStar
 
     /** removes a random star from the field */
     public void removeStar() {
-        if (field.size() > 100) {
-            int index = rand.nextInt(field.size());
-            field.remove(index);
+        synchronized (field) {
+            if (field.size() > 100) {
+                int index = rand.nextInt(field.size());
+                field.remove(index);
+            }
         }
     }//removeStar
 
     /** draws the next frame of the animation */
     @Override
     public void draw(Canvas canvas) {
-        for (Star s : field) {
-            s.draw(canvas);
-            if (this.twinkle) {
-                s.twinkle();
+        synchronized (field) {
+            for (Star s : field) {
+                s.draw(canvas);
+                if (this.twinkle) {
+                    s.twinkle();
+                }
             }
         }
 
@@ -77,16 +85,18 @@ public class StarAnimation extends Animation {
     /** the seekbar progress specifies the brightnes of the stars. */
     @Override
     public void progressChange(int newProgress) {
-        if(field.size() >= 100 && field.size()<1000) {
-            int prog = newProgress * 9;
-            if(prog > field.size())
-                for(int i = 0; i < (prog-field.size()); i++) {
-                    addStar();
-                }
-            else if(prog < field.size())
-                for(int i = 0; i < (field.size()-prog); i++) {
-                    removeStar();
-                }
+        synchronized (field) {
+            if (field.size() >= 100 && field.size() < 1000) {
+                int prog = newProgress * 9;
+                if (prog > field.size())
+                    for (int i = 0; i < (prog - field.size()); i++) {
+                        addStar();
+                    }
+                else if (prog < field.size())
+                    for (int i = 0; i < (field.size() - prog); i++) {
+                        removeStar();
+                    }
+            }
         }
        /* int brightness = 255 - (newProgress * 2);
         Star.starPaint.setColor(Color.rgb(brightness, brightness, brightness));

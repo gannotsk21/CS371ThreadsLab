@@ -1,5 +1,7 @@
 package edu.up.cs301threadslab;
 
+import android.util.Log;
+
 public class LAB11 extends Thread {
     private AnimationView ref;
 
@@ -9,14 +11,15 @@ public class LAB11 extends Thread {
     }
 
     @Override
-    public void run()
-    {
-        try {
-            Thread.sleep(50);
+    public void run() {
+        Log.i("Twinkle Thread: ", "is running");
+        while (true) {
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                //do nothing
+            }
+            ref.postInvalidate();
         }
-        catch(InterruptedException e){
-            //do nothing
-        }
-        ref.postInvalidate();
     }
 }
